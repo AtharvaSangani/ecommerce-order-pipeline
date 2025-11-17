@@ -500,10 +500,4 @@ For support and questions:
 2. Review existing [GitHub Issues](../../issues)
 3. Create new issue with detailed description
 
-## License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
 ---
-
-**Built with ❤️ using Spring Boot, Apache Kafka, and PostgreSQL**
