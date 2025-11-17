@@ -1,0 +1,64 @@
+spring:
+  application:
+    name: order-processing-pipeline
+  datasource:
+    url: jdbc:postgresql://localhost:5432/orderdb
+    username: postgres
+    password: password
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+    show-sql: true
+  kafka:
+    bootstrap-servers: localhost:9092
+    consumer:
+      group-id: order-processing-group
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: "com.ecommerce.orderpipeline.dto"
+        spring.json.type.mapping: "orderEvent:com.ecommerce.orderpipeline.dto.OrderEvent"
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+    listener:
+      ack-mode: MANUAL_IMMEDIATE
+
+app:
+  kafka:
+    topics:
+      order-placed: "orders.placed"
+      order-validated: "orders.validated"
+      inventory-reserved: "inventory.reserved"
+      payment-processed: "payments.processed"
+      order-confirmed: "orders.confirmed"
+      order-failed: "orders.failed"
+      dlq-orders: "dlq.orders"
+  retry:
+    max-attempts: 3
+    backoff-delay: 1000
+  payment:
+    timeout: 5000
+    max-retries: 3
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  endpoint:
+    health:
+      show-details: always
+
+logging:
+  level:
+    com.ecommerce.orderpipeline: DEBUG
+    org.springframework.kafka: INFO
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
